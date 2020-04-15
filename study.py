@@ -61,7 +61,6 @@ def autoJob(tv,sleep_time,sum=6,click=True):
                         time.sleep(2)
                         driver(text="发布").click()
                         time.sleep(1)
-                        driver.press.back()
                         '''
                         @liuzhijie443
                         #收藏
@@ -74,6 +73,7 @@ def autoJob(tv,sleep_time,sum=6,click=True):
                         driver(text="删除").click()
                         time.sleep(2)
                         driver(text="确认").click()
+                        count_click=count_click+1
                         '''
                     count=count+1
                     all_of_list.append(txt)
