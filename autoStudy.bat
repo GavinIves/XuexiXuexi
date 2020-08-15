@@ -2,7 +2,7 @@
 chcp 65001 
 cd C:\Program Files (x86)\MuMu\emulator\nemu\EmulatorShell
 start NemuPlayer.exe
-timeout /T 15
+timeout /T 25
 cd 填写adb目录
 adb kill-server
 adb connect 127.0.0.1:7555
