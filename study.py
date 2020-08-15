@@ -20,15 +20,20 @@ all_of_list=[]
 if os.path.isfile("db.npy"):
     all_of_list = np.load ("db.npy").tolist()
 
-# In[3]:
-#def login():
-#   driver.click(0.5*Width, 0.42*Height)
-#   time.sleep(1)
-# os.system("adb shell am broadcast -a ADB_INPUT_TEXT --es msg '密码填写位置'")
-#    time.sleep(1)
-#   driver.click(0.5*Width, 0.49*Height)
-#  time.sleep(5)
+all_of_list2=[]
+if os.path.isfile("db2.npy"):
+    all_of_list2 = np.load ("db2.npy").tolist()
 
+# In[3]:
+"""这里修改自动登录配置 记得将下面的引号去掉 最后也有一部分需要修改"""
+"""def login():
+    driver.click(0.5*Width, 0.42*Height)
+    time.sleep(1)
+    os.system("adb shell am broadcast -a ADB_INPUT_TEXT --es msg '你自己的密码'")
+    time.sleep(1)
+    driver.click(0.5*Width, 0.49*Height)
+    time.sleep(5)
+"""
 
 def autoJob(tv,sleep_time,sum=6,click=True):
     count_click=0
@@ -56,15 +61,16 @@ def autoJob(tv,sleep_time,sum=6,click=True):
                         time.sleep(1)
                         driver(text="欢迎发表你的观点").click()
                         time.sleep(2)
-                        os.system("adb shell am broadcast -a ADB_INPUT_TEXT --es msg '中国加油！支持党的决定'")
+                        os.system("adb shell am broadcast -a ADB_INPUT_TEXT --es msg '中国加油！全力支持'")
                         os.system("adb shell input keyevent 66")#不知道为什么输入一个回车，点击发布才有反应
                         time.sleep(2)
                         driver(text="发布").click()
                         time.sleep(1)
+                        driver.click(0.94*Width, 0.864*Height)
+                        count_click=count_click+1
                         '''
-                        @liuzhijie443
                         #收藏
-                        time.sleep(5)
+                        time.sleep(3)
                         driver.click(0.84*Width, 0.975*Height)
                         time.sleep(1)
                         driver.click(0.84*Width, 0.975*Height)
@@ -73,7 +79,6 @@ def autoJob(tv,sleep_time,sum=6,click=True):
                         driver(text="删除").click()
                         time.sleep(2)
                         driver(text="确认").click()
-                        count_click=count_click+1
                         '''
                     count=count+1
                     all_of_list.append(txt)
@@ -102,12 +107,8 @@ def watch_local():
 def read_articles():
     time.sleep(2)
     #切换到要闻界面
-    driver(text='新思想').click()
-    autoJob(tv="阅读文章",sleep_time=130)
-    print("阅读文章结束")
-
-
-# In[5]:
+    driver(text='综合').click()
+    autoJob(tv="阅读文章",sleep_time=135)
 
 
 #观看视频,每个视频观看20秒，以及17分钟新闻联盟
@@ -116,7 +117,7 @@ def watch_video():
     #切换到电视台页面
     driver(resourceId="cn.xuexi.android:id/home_bottom_tab_button_contact").click()
     driver(text="联播频道").click()
-    autoJob(tv="观看视频",sleep_time=20,click=False)
+    autoJob(tv="观看视频",sleep_time=25,click=False)
     driver(text="联播频道").click()
     
     news=None
@@ -136,8 +137,57 @@ def watch_video():
     
     print("正在观看新闻联播...")
     time.sleep(1050)
-    driver.press('back')
+    driver.press.back()
     print("观看视频结束.")
+
+# In[5]订阅
+
+def dingyue(sum=2,click=True):
+    count=0
+    driver(text='我的').click()
+    time.sleep(3)
+    driver(text='订阅').click()
+    time.sleep(1)
+    driver(text='添加').click()
+    time.sleep(1)
+    drag_str='adb shell input swipe '+str(Width*0.5)+' '+str(Height*0.88)+' '+str(Width*0.5)+' '+str(Height*0.4)
+    for _ in range(100):
+        dingyue_lists=driver(className='android.widget.TextView')
+        try:
+            for i in range(len(dingyue_lists)):
+                txt=dingyue_lists[i].text
+                if len(txt)>11 and txt not in all_of_list2 and count<sum:
+                    driver(text=txt,className='android.widget.TextView').click()
+                    driver(text="订阅").click()
+                    count=count+1
+                    all_of_list2.append(txt)
+                    print("已订阅",txt)
+                    driver.press.back()
+        except BaseException:
+            print("抛出异常，程序继续执行...")
+        if count >=sum:
+            driver.press.back()
+            driver.press.back()
+            print("全部完成")
+            break
+        os.system(drag_str)
+
+    #100天后删除最早一天的记录
+    dingyue_list=np.array (all_of_list2)
+    
+    if len(dingyue_list)>2500:
+        dingyue_list = dingyue_list[25:]
+    #存储已看视频和文章
+    np.save ('db2.npy',dingyue_list)
+
+
+def screenshot():
+    #driver(text='我的').click()
+    time.sleep(2)
+    driver(text='学习积分').click()
+    
+
+
 
 
 # In[6]:
@@ -151,10 +201,12 @@ if __name__ == '__main__':
     Width=driver.info['displayWidth']
     #切换adb输入法
     os.system('adb shell ime set com.android.adbkeyboard/.AdbIME')
-    login()
+    #login() --------------------------需要自动登录将#去掉 文字删除
     watch_local()
     read_articles()
     watch_video()
+    dingyue()
+    screenshot()
     #切换回搜狗输入法
     #os.system('adb shell ime set com.sohu.inputmethod.sogou.meizu/com.sohu.inputmethod.sogou.SogouIME')
     #熄灭屏幕
