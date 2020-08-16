@@ -25,15 +25,20 @@ if os.path.isfile("db2.npy"):
     all_of_list2 = np.load ("db2.npy").tolist()
 
 # In[3]:
-"""这里修改自动登录配置 记得将下面的引号去掉 最后也有一部分需要修改"""
-"""def login():
-    driver.click(0.5*Width, 0.42*Height)
-    time.sleep(1)
-    os.system("adb shell am broadcast -a ADB_INPUT_TEXT --es msg '你自己的密码'")
-    time.sleep(1)
-    driver.click(0.5*Width, 0.49*Height)
-    time.sleep(5)
-"""
+def login():
+    try:
+        driver(text="登录").click()
+        driver.click(0.5*Width, 0.42*Height)
+        time.sleep(1)
+        os.system("adb shell am broadcast -a ADB_INPUT_TEXT --es msg '你自己的密码'")
+        time.sleep(1)
+        driver(text="登录").click()
+        time.sleep(2)
+    except BaseException:
+        print("已登录")
+    else:
+        print('正在登录')
+    
 
 def autoJob(tv,sleep_time,sum=6,click=True):
     count_click=0
@@ -158,6 +163,7 @@ def dingyue(sum=2,click=True):
                 txt=dingyue_lists[i].text
                 if len(txt)>11 and txt not in all_of_list2 and count<sum:
                     driver(text=txt,className='android.widget.TextView').click()
+                    time.sleep(1)
                     driver(text="订阅").click()
                     count=count+1
                     all_of_list2.append(txt)
@@ -165,6 +171,10 @@ def dingyue(sum=2,click=True):
                     driver.press.back()
         except BaseException:
             print("抛出异常，程序继续执行...")
+            driver.press.back()
+            driver.press.back()
+            print("都已经订阅了")
+            break
         if count >=sum:
             driver.press.back()
             driver.press.back()
@@ -201,7 +211,7 @@ if __name__ == '__main__':
     Width=driver.info['displayWidth']
     #切换adb输入法
     os.system('adb shell ime set com.android.adbkeyboard/.AdbIME')
-    #login() --------------------------需要自动登录将#去掉 文字删除
+    #login()---------------------------需要自动登录请删去# 如果你不需要在两个设备上切换登录 无需打开此功能
     watch_local()
     read_articles()
     watch_video()
