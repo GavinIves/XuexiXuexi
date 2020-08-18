@@ -155,7 +155,7 @@ def dingyue(sum=2,click=True):
     time.sleep(1)
     driver(text='添加').click()
     time.sleep(1)
-    drag_str='adb shell input swipe '+str(Width*0.5)+' '+str(Height*0.88)+' '+str(Width*0.5)+' '+str(Height*0.4)
+    drag_str='adb shell input swipe '+str(Width*0.5)+' '+str(Height*0.88)+' '+str(Width*0.5)+' '+str(Height*0.3)
     for _ in range(100):
         dingyue_lists=driver(className='android.widget.TextView')
         try:
